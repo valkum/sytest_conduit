@@ -111,9 +111,10 @@ sub start
    my $loop = $self->loop;
 
    $output->diag( "Starting conduit" );
+   $ENV{'CONDUIT_CONFIG'} = $self->{paths}{config};
+   
    my @command = (
       $self->{bindir} . '/conduit',
-      '--config', $self->{paths}{config},
    );
 
    return $self->_start_process_and_await_connectable(
