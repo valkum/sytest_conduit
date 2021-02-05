@@ -25,6 +25,7 @@ use POSIX qw( WIFEXITED WEXITSTATUS );
 
 use SyTest::SSL qw( ensure_ssl_key create_ssl_cert );
 use TOML::Tiny qw(from_toml to_toml);
+use JSON::PP;
 
 sub _init
 {
@@ -75,13 +76,21 @@ sub _get_config
 
    # Lets use a toml maybe?
    return (
-      matrix => {
+      global => {
          server_name => $self->server_name,
-         private_key => $self->{paths}{matrix_key},
-         tls_certificate_path => $self->{paths}{tls_cert},
-         tls_private_key_path => $self->{paths}{tls_key},
-         registration_shared_secret => "reg_secret"
-
+         # private_key => $self->{paths}{matrix_key},
+         # tls_certificate_path => $self->{paths}{tls_cert},
+         # tls_private_key_path => $self->{paths}{tls_key},
+         registration_shared_secret => "reg_secret",
+         allow_registration => JSON::PP::true(),
+         allow_encryption => JSON::PP::true(),
+         allow_federation => JSON::PP::true(),
+         database_path => "$hs_dir/database",
+         tls => {
+            key => $self->{paths}{tls_key},
+            certs => $self->{paths}{tls_cert}
+         },
+         port => $self->secure_port,
       },
       # Todo
       database => \%db_config,
@@ -111,8 +120,8 @@ sub start
    my $loop = $self->loop;
 
    $output->diag( "Starting conduit" );
-   $ENV{'CONDUIT_CONFIG'} = $self->{paths}{config};
    
+
    my @command = (
       $self->{bindir} . '/conduit',
    );
@@ -120,15 +129,16 @@ sub start
    return $self->_start_process_and_await_connectable(
       setup => [
          env => {
-            LOG_DIR => $self->{hs_dir},
-            RUST_LOG => "info",
-            ROCKET_ENV => "staging",
+            CONDUIT_CONFIG => $self->{paths}{config},
+            # LOG_DIR => $self->{hs_dir},
+            # RUST_LOG => "info",
+            # ROCKET_ENV => "staging",
             ROCKET_HOSTNAME => $self->http_api_host,
-            ROCKET_PORT => $self->secure_port,
-            ROCKET_TLS => "{certs=\"$self->{paths}{tls_cert}\",key=\"$self->{paths}{tls_key}\"}",
+            CONDUIT_PORT => $self->secure_port,
+            # ROCKET_TLS => "{certs=\"$self->{paths}{tls_cert}\",key=\"$self->{paths}{tls_key}\"}",
             # Specify more config per env vars. But in realty they should live under their own namespace
-            ROCKET_DATABASE_PATH => $config{database}{args}{database},
-            ROCKET_SERVER_NAME => $self->server_name
+            # ROCKET_DATABASE_PATH => $config{database}{args}{database},
+            # ROCKET_SERVER_NAME => $self->server_name
          },
       ],
       command => [ @command ],
