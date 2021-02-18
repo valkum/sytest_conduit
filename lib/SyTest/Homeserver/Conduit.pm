@@ -180,9 +180,20 @@ sub secure_port
 sub unsecure_port
 {
    my $self = shift;
-   # todo fix
+   # todo fix secure only mode
    return $self->{ports}{rocket_tls};
 }
+
+sub public_baseurl
+{
+    my $self = shift;
+    # run-tests.pl defines whether TLS should be used or not.
+    my ( $want_tls ) = @_;
+    # todo fix secure only mode
+    return $want_tls ?
+       "https://$self->{bind_host}:" . $self->secure_port() :
+       "https://$self->{bind_host}:" . $self->unsecure_port();
+ }
 
 sub print_output
 {
