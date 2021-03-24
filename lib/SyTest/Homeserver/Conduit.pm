@@ -159,7 +159,7 @@ sub server_name
    return $self->{bind_host} . ":" . $self->secure_port;
 }
 
-sub http_api_host
+sub federation_host
 {
    my $self = shift;
    return $self->{bind_host};
@@ -174,13 +174,6 @@ sub federation_port
 sub secure_port
 {
    my $self = shift;
-   return $self->{ports}{rocket_tls};
-}
-
-sub unsecure_port
-{
-   my $self = shift;
-   # todo fix secure only mode
    return $self->{ports}{rocket_tls};
 }
 
