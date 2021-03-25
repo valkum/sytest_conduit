@@ -180,12 +180,7 @@ sub secure_port
 sub public_baseurl
 {
     my $self = shift;
-    # run-tests.pl defines whether TLS should be used or not.
-    my ( $want_tls ) = @_;
-    # todo fix secure only mode
-    return $want_tls ?
-       "https://$self->{bind_host}:" . $self->secure_port() :
-       "https://$self->{bind_host}:" . $self->unsecure_port();
+    return "https://$self->{bind_host}:" . $self->secure_port();
  }
 
 sub print_output
