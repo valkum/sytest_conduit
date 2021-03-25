@@ -86,6 +86,7 @@ sub _get_config
          allow_encryption => JSON::PP::true(),
          allow_federation => JSON::PP::true(),
          database_path => "$hs_dir/database",
+         log => "info,rocket=info,_=off,sled=off",
          tls => {
             key => $self->{paths}{tls_key},
             certs => $self->{paths}{tls_cert}
@@ -116,39 +117,9 @@ sub start
    my %config = $self->_get_config;
    $self->{paths}{config} = $self->write_toml_file( "conduit.toml" => \%config );
 
-   
-   my $loop = $self->loop;
-
-   $output->diag( "Starting conduit" );
-   
-
-   my @command = (
-      $self->{bindir} . '/conduit',
+   return Future->done->then( 
+      $self->_capture_weakself( '_start_conduit' )
    );
-
-   return $self->_start_process_and_await_connectable(
-      setup => [
-         env => {
-            CONDUIT_CONFIG => $self->{paths}{config},
-            # LOG_DIR => $self->{hs_dir},
-            # RUST_LOG => "info",
-            # ROCKET_ENV => "staging",
-            ROCKET_HOSTNAME => $self->federation_host,
-            CONDUIT_PORT => $self->secure_port,
-            # ROCKET_TLS => "{certs=\"$self->{paths}{tls_cert}\",key=\"$self->{paths}{tls_key}\"}",
-            # Specify more config per env vars. But in realty they should live under their own namespace
-            # ROCKET_DATABASE_PATH => $config{database}{args}{database},
-            # ROCKET_SERVER_NAME => $self->server_name
-         },
-      ],
-      command => [ @command ],
-      connect_host => $self->{bind_host},
-      connect_port => $self->secure_port,
-   )->else( sub {
-      die "Unable to start conduit: $_[0]\n";
-   })->on_done( sub {
-      $output->diag( "Started conduit server" );
-   });
 }
 
 
@@ -276,12 +247,37 @@ sub write_toml_file
    return $abspath;
 }
 
-# override for Homeserver::kill_and_await_finish: delegate to
-# ProcessManager::kill_and_await_finish
-sub kill_and_await_finish
+sub _start_conduit
 {
    my $self = shift;
-   return $self->SyTest::Homeserver::ProcessManager::kill_and_await_finish();
+
+   my $output = $self->{output};
+   my $loop = $self->loop;
+
+   $output->diag( "Starting Conduit" );
+
+   my @command = (
+      $self->{bindir} . '/conduit',
+   );
+
+   $output->diag( "Starting Conduit with: @command" );
+
+   $self->_start_process_and_await_connectable(
+      setup => [
+         env => {
+            CONDUIT_CONFIG => $self->{paths}{config},
+            ROCKET_HOSTNAME => $self->federation_host,
+            CONDUIT_PORT => $self->secure_port,
+         },
+      ],
+      command => [ @command ],
+      connect_host => $self->{bind_host},
+      connect_port => $self->secure_port,
+   )->else( sub {
+      die "Unable to start Conduit: $_[0]\n";
+   })->on_done( sub {
+      $output->diag( "Started Conduit server" );
+   });
 }
 
 1;
