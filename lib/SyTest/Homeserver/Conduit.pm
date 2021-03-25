@@ -133,7 +133,7 @@ sub start
             # LOG_DIR => $self->{hs_dir},
             # RUST_LOG => "info",
             # ROCKET_ENV => "staging",
-            ROCKET_HOSTNAME => $self->http_api_host,
+            ROCKET_HOSTNAME => $self->federation_host,
             CONDUIT_PORT => $self->secure_port,
             # ROCKET_TLS => "{certs=\"$self->{paths}{tls_cert}\",key=\"$self->{paths}{tls_key}\"}",
             # Specify more config per env vars. But in realty they should live under their own namespace
