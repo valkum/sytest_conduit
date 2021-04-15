@@ -12,7 +12,7 @@ RUN apt-get update && \
 
 RUN wget -q https://github.com/valkum/sytest/archive/develop.tar.gz -O sytest.tar.gz
 RUN mkdir -p /sytest && tar -C /sytest --strip-components=1 -xf sytest.tar.gz
-RUN cp /sytest/keys/key.crt /usr/local/share/ca-certificates/sytest_ca.crt
+RUN cp /sytest/keys/ca.crt /usr/local/share/ca-certificates/sytest_ca.crt
 RUN chmod 644 /usr/local/share/ca-certificates/sytest_ca.crt && update-ca-certificates
 
 RUN curl https://sh.rustup.rs -sSf | \
