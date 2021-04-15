@@ -20,8 +20,6 @@ RUN curl https://sh.rustup.rs -sSf | \
 
 ENV PATH=/root/.cargo/bin:$PATH
 
-RUN cargo install sccache
-
 # This is where we expect conduit to be binded to from the host
 RUN mkdir -p /src
 
