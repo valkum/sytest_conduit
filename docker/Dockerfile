@@ -1,5 +1,5 @@
 ARG DEBIAN_VERSION=buster
-FROM valkum/sytest:latest
+FROM matrixdotorg/sytest:buster
 
 RUN apt-get update && \
     apt-get install --no-install-recommends -y \
