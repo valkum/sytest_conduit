@@ -14,9 +14,7 @@ ADD cpanfile ./cpanfile
 RUN perl ./install-deps.pl -T
 RUN rm cpanfile install-deps.pl
 
-RUN wget -q https://github.com/valkum/sytest/archive/develop.tar.gz -O sytest.tar.gz
-RUN mkdir -p /sytest && tar -C /sytest --strip-components=1 -xf sytest.tar.gz
-RUN cp /sytest/keys/ca.crt /usr/local/share/ca-certificates/sytest_ca.crt
+RUN wget -q https://raw.githubusercontent.com/matrix-org/sytest/develop/keys/ca.crt -O /usr/local/share/ca-certificates/sytest_ca.crt
 RUN chmod 644 /usr/local/share/ca-certificates/sytest_ca.crt && update-ca-certificates
 
 RUN curl https://sh.rustup.rs -sSf | \
