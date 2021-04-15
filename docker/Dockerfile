@@ -9,6 +9,10 @@ RUN apt-get update && \
     autoconf automake autotools-dev libtool xutils-dev && \
     rm -rf /var/lib/apt/lists/*
 
+ADD install-deps.pl ./install-deps.pl
+ADD cpanfile ./cpanfile
+RUN perl ./install-deps.pl -T
+RUN rm cpanfile install-deps.pl
 
 RUN wget -q https://github.com/valkum/sytest/archive/develop.tar.gz -O sytest.tar.gz
 RUN mkdir -p /sytest && tar -C /sytest --strip-components=1 -xf sytest.tar.gz
